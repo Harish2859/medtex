@@ -1,6 +1,4 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -16,14 +15,14 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({
@@ -35,19 +34,24 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await signIn(email, password);
       toast({
         title: "Success",
         description: "You have been signed in successfully.",
       });
-      navigate("/dashboard");
-    }, 1500);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
       toast({
@@ -59,16 +63,21 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-
-    // Simulate account creation
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await signUp(email, password, name);
       toast({
         title: "Account created",
         description: "Your account has been created successfully.",
       });
-      navigate("/dashboard");
-    }, 1500);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
