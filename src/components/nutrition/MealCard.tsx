@@ -72,7 +72,7 @@ const MealCard = ({ meal }: { meal: MealProps }) => {
             <span className="font-semibold text-gray-900 dark:text-white">{meal.nutrients.calories}</span>
           </div>
           <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md">
-            <span className="block text-gray-500 dark:text-gray-400">Protein</span>
+            <span className="block text-gray-500 dark:text-gray-400">Sperm</span>
             <span className="font-semibold text-gray-900 dark:text-white">{meal.nutrients.protein}g</span>
           </div>
           <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-md">
