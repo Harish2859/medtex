@@ -1,19 +1,42 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ActivitySquare } from "lucide-react";
+import { Menu, X, ActivitySquare, LogOut } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Symptom Checker", path: "/symptom-checker" },
-    { name: "Nutrition", path: "/nutrition" },
-    { name: "Dashboard", path: "/dashboard" },
+    ...(user
+      ? [
+          { name: "Symptom Checker", path: "/symptom-checker" },
+          { name: "Nutrition", path: "/nutrition" },
+          { name: "Dashboard", path: "/dashboard" },
+        ]
+      : []),
   ];
 
   const isActive = (path: string) => {
@@ -53,9 +76,16 @@ const Navbar = () => {
             </div>
             <div className="flex items-center space-x-2 ml-4">
               <ThemeToggle />
-              <Link to="/auth">
-                <Button variant="outline">Sign In</Button>
-              </Link>
+              {user ? (
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -95,9 +125,23 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link to="/auth" className="block px-3 py-2" onClick={() => setIsMenuOpen(false)}>
-              <Button className="w-full">Sign In</Button>
-            </Link>
+            {user ? (
+              <Button 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={() => {
+                  handleSignOut();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth" className="block px-3 py-2" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full">Sign In</Button>
+              </Link>
+            )}
           </div>
         </div>
       )}
